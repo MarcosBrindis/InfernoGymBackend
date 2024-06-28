@@ -17,30 +17,36 @@ DB_HOST=localhost
 
 DB_PORT=3306
 
-DB_USER=pedro
+DB_USER=
 
 DB_PASSWORD=1234
 
-DB_NAME=tienda_familiar
+DB_NAME=
 
 PORT=8000
 
 # Construcción de base de datos
 
-create database tienda_familiar;
-use tienda_familiar;
-create table product (
-product_id int primary key AUTO_INCREMENT,
-name varchar(50) NOT NULL,
-stock int DEFAULT 0,
-type_measurement varchar(30) DEFAULT "Unidades",
-created_at datetime NOT NULL,
-created_by varchar(50),
-updated_at datetime NOT NULL,
-updated_by varchar(50),
-deleted boolean DEFAULT FALSE
+show databases; 
+CREATE DATABASE infernogym_mysql_t;
+use infernogym_mysql_ts;
+show tables;
+
+CREATE TABLE exercise (
+    exercise_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    exercise_name VARCHAR(200) NOT NULL,
+    exercise_description TEXT NOT NULL,
+    weightexercise FLOAT NOT NULL,  
+    series INT NOT NULL,
+    repetitions INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(50),
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    updated_by VARCHAR(50),
+    deleted BOOLEAN DEFAULT FALSE
 );
-create table role_employee (
+
+create table role_user (
 role_id int primary key AUTO_INCREMENT,
 title varchar(50) NOT NULL,
 description text,
@@ -50,14 +56,30 @@ updated_at datetime NOT NULL,
 updated_by varchar(50),
 deleted boolean DEFAULT FALSE
 );
-create table employee (
-employee_id int primary key AUTO_INCREMENT,
-full_name varchar(50) NOT NULL,
-role_id_fk int NOT NULL,
-created_at datetime NOT NULL,
-created_by varchar(50),
-updated_at datetime NOT NULL,
-updated_by varchar(50),
-deleted boolean DEFAULT FALSE,
-foreign key(role_id_fk) references role_employee(role_id)
+
+CREATE TABLE user (
+  user_id INT PRIMARY KEY AUTO_INCREMENT,
+  nickname VARCHAR(50) NOT NULL,
+  password  VARCHAR(255) NOT NULL, 
+  role_id_fk INT NOT NULL,
+  created_at DATETIME NOT NULL,
+  created_by VARCHAR(50),
+  updated_at DATETIME NOT NULL,
+  updated_by VARCHAR(50),
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (role_id_fk) REFERENCES role_user(role_id)
 );
+
+DROP TABLE user;
+DROP TABLE role_user;
+
+SELECT * FROM role_user;
+
+INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
+VALUES ('Administrador', 'Rol de administrador', NOW(), 'admin', NOW(), 'admin', FALSE);
+
+SELECT * FROM role_user WHERE title = 'Administrador';
+
+DESCRIBE role_user;
+DESCRIBE user;
+SELECT * FROM user
