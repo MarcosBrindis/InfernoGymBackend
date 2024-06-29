@@ -1,5 +1,5 @@
 
-# API para tienda (Práctica)
+# API para gym inferno
 
 API desarrollada en express con Typescript como ejemplo para clase de fundamento de base de datos.
 
@@ -70,11 +70,10 @@ CREATE TABLE user (
   FOREIGN KEY (role_id_fk) REFERENCES role_user(role_id)
 );
 
-DROP TABLE user;
-DROP TABLE role_user;
 
 SELECT * FROM role_user;
 
+es necesario crear este elemento para poder asignar un rol
 INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
 VALUES ('Administrador', 'Rol de administrador', NOW(), 'admin', NOW(), 'admin', FALSE);
 
