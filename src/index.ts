@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import userRoutes from './user/routes/userRoutes';
 import exerciseRoutes from './exercise/routes/exerciseRoutes';
 import dieteRoutes from './diete/routes/dieteRoutes';
-
+import mailRoutes from './mail/routes/mailRoutes';
 
 // Importar middlewares compartidos
 import { errorHandler } from './shared/middlewares/errorHandler';
@@ -28,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/user', userRoutes);
 app.use('/api/exercise', exerciseRoutes);
 app.use('/api/diete', dieteRoutes);
+app.use('/api/mail', mailRoutes);
 
 // Middleware para manejar rutas no encontradas
 app.use(notFoundHandler);
