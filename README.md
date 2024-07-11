@@ -46,6 +46,18 @@ CREATE TABLE exercise (
     deleted BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE diete (
+    diete_id INT AUTO_INCREMENT PRIMARY KEY,
+    foods TEXT NOT NULL,
+    progress TEXT,
+    subscription BOOLEAN DEFAULT 0, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
 create table role_user (
 role_id int primary key AUTO_INCREMENT,
 title varchar(50) NOT NULL,
