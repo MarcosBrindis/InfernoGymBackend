@@ -1,7 +1,7 @@
 {
   "name": "express-typescript-api",
   "version": "1.0.0",
-  "description": "API REST de prueba para fundamento de base de datos.",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
@@ -9,7 +9,7 @@
     "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Pedro Hiram Camacho Castillo",
+  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

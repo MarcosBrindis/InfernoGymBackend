@@ -5,10 +5,13 @@ import dotenv from 'dotenv';
 // Importar rutas de módulos
 import userRoutes from './user/routes/userRoutes';
 import exerciseRoutes from './exercise/routes/exerciseRoutes';
+import dieteRoutes from './diete/routes/dieteRoutes';
+
 
 // Importar middlewares compartidos
 import { errorHandler } from './shared/middlewares/errorHandler';
 import { notFoundHandler } from './shared/middlewares/notFoundHandler';
+
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -24,6 +27,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Rutas de los módulos
 app.use('/api/user', userRoutes);
 app.use('/api/exercise', exerciseRoutes);
+app.use('/api/diete', dieteRoutes);
 
 // Middleware para manejar rutas no encontradas
 app.use(notFoundHandler);
