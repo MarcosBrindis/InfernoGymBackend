@@ -11,9 +11,9 @@ const secretKey = process.env.SECRET || "";
 const saltRounds = 10;
 
 export class UserService {
-  public static async login(nickname: string, password: string) {
+  public static async login(name: string, password: string) {
     try {
-      const user = await this.getUserByNickname(nickname);
+      const user = await this.getUserByName(name);
       if (!user) {
         return null;
       }
@@ -26,7 +26,7 @@ export class UserService {
       const payload = {
         user_id: user.user_id,
         role_id_fk: user.role_id_fk,
-        nickname: user.nickname
+        name: user.name
       };
       return await jwt.sign(payload, secretKey, { expiresIn: '5m' });
     } catch (error: any) {
@@ -50,9 +50,9 @@ export class UserService {
     }
   }
 
-  public static async getUserByNickname(nickname: string): Promise<User | null> {
+  public static async getUserByName(name: string): Promise<User | null> {
     try {
-      return await UserRepository.findByNickname(nickname);
+      return await UserRepository.findByName(name);
     } catch (error: any) {
       throw new Error(`Error al encontrar usuario: ${error.message}`);
     }
@@ -76,8 +76,8 @@ export class UserService {
       const salt = await bcrypt.genSalt(saltRounds);
 
       if (userFound) {
-        if (userData.nickname) {
-          userFound.nickname = userData.nickname;
+        if (userData.name) {
+          userFound.name = userData.name;
         }
         if (userData.password) {
           userFound.password = await bcrypt.hash(userData.password, salt);

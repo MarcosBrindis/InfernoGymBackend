@@ -16,21 +16,20 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  try{
-
+  try {
     const payload = jwt.verify(token, secretKey) as UserPayload;
     const user = await UserRepository.findById(payload.user_id);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid token' });
     }
-  
-    req.employeeData = payload;
+
+    req.user = payload; // Almacenar todo el payload del usuario en req.user
     next();
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expired' });
-  }
-  return res.status(401).json({ message: 'Unauthorized' });
+    }
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 };

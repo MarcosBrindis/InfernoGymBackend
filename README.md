@@ -58,6 +58,16 @@ CREATE TABLE diete (
     deleted BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE mail (
+    mail_id INT AUTO_INCREMENT PRIMARY KEY,
+    messages TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT,
+    deleted BOOLEAN DEFAULT FALSE
+); 
+
 create table role_user (
 role_id int primary key AUTO_INCREMENT,
 title varchar(50) NOT NULL,

@@ -34,43 +34,43 @@ export class DieteRepository {
     });
   }
 
-  public static async createDiete(diete: Diete): Promise<Diete> {
-    const query = 'INSERT INTO diete (foods, progress, subscription, created_by, updated_by, deleted) VALUES (?, ?, ?, ?, ?, ?)';
+  public static async createDiete(diete: Diete, userId: number): Promise<Diete> {
+    const query = 'INSERT INTO diete (foods, progress, subscription, created_by, updated_by, user_id) VALUES (?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         diete.foods,
         diete.progress,
         diete.subscription,
-        diete.created_by,
-        diete.updated_by,
-        diete.deleted
+        userId, 
+        userId, 
+        userId
       ], (error, result: ResultSetHeader) => {
         if (error) {
           reject(error);
         } else {
           const createdDieteId = result.insertId;
-          const createdDiete: Diete = { ...diete, diete_id: createdDieteId };
+          const createdDiete: Diete = { ...diete, diete_id: createdDieteId, created_by: userId, updated_by: userId };
           resolve(createdDiete);
         }
       });
     });
   }
 
-  public static async updateDiete(id: number, dieteData: Diete): Promise<Diete | null> {
+  public static async updateDiete(id: number, dieteData: Diete, userId: number): Promise<Diete | null> {
     const query = 'UPDATE diete SET foods = ?, progress = ?, subscription = ?, updated_by = ? WHERE diete_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         dieteData.foods,
         dieteData.progress,
         dieteData.subscription,
-        dieteData.updated_by,
+        userId,
         id
       ], (error, result: ResultSetHeader) => {
         if (error) {
           reject(error);
         } else {
           if (result.affectedRows > 0) {
-            const updatedDiete: Diete = { ...dieteData, diete_id: id };
+            const updatedDiete: Diete = { ...dieteData, diete_id: id, updated_by: userId };
             resolve(updatedDiete);
           } else {
             resolve(null);

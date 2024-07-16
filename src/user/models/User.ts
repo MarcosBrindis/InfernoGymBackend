@@ -1,11 +1,17 @@
-export interface User{
-    user_id: number;
-    nickname: string;
+export interface User {
+    user_id?: number;
+    name: string;
     password: string;
-    role_id_fk: number;
-    created_at: String;
-    created_by: string;
-    updated_at: String;
-    updated_by: string;
-    deleted: boolean;
-}
+    weight?: number;
+    height?: number;
+    age?: number;
+    progress?: string;
+    subscription?: string;
+    created_at?: string;
+    created_by?: number;
+    updated_at?: string;
+    updated_by?: number;
+    deleted?: boolean;
+    role_id_fk?: number;
+  }
+  

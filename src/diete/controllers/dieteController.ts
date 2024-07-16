@@ -1,8 +1,10 @@
-import { Request, Response } from 'express';
-import { DieteService } from '../services/dieteService'; 
+import { Response } from 'express';
+import { DieteService } from '../services/dieteService';
 import { Diete } from '../models/dieteModel';
+import { AuthRequest } from '../../shared/config/types/authRequest';
 
-export const getDietes = async (_req: Request, res: Response): Promise<void> => {
+
+export const getDietes = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const dietes = await DieteService.getDietes();
     res.json(dietes);
@@ -11,7 +13,7 @@ export const getDietes = async (_req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const getDieteById = async (req: Request, res: Response): Promise<void> => {
+export const getDieteById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const diete = await DieteService.getDieteById(parseInt(req.params.id, 10));
     if (diete) {
@@ -24,27 +26,41 @@ export const getDieteById = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const createDiete = async (req: Request, res: Response): Promise<void> => {
+export const createDiete = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const newDiete: Diete = req.body;
-    await DieteService.createDiete(newDiete);
+    const userId = req.user?.user_id;
+
+    if (userId === undefined) {
+      res.status(400).json({ message: 'User ID is missing' });
+      return; // Detiene la ejecución aquí
+    }
+
+    await DieteService.createDiete(newDiete, userId);
     res.status(201).send('Diete created');
   } catch (err) {
     res.status(500).send('Error al crear la dieta');
   }
 };
 
-export const updateDiete = async (req: Request, res: Response): Promise<void> => {
+export const updateDiete = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const updatedDiete: Diete = req.body;
-    await DieteService.updateDiete(parseInt(req.params.id, 10), updatedDiete);
+    const userId = req.user?.user_id;
+
+    if (userId === undefined) {
+      res.status(400).json({ message: 'User ID is missing' });
+      return; // Detiene la ejecución aquí
+    }
+
+    await DieteService.updateDiete(parseInt(req.params.id, 10), updatedDiete, userId);
     res.send('Diete updated');
   } catch (err) {
     res.status(500).send('Error al actualizar la dieta');
   }
 };
 
-export const deleteDiete = async (req: Request, res: Response): Promise<void> => {
+export const deleteDiete = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     await DieteService.deleteDiete(parseInt(req.params.id, 10));
     res.send('Diete deleted');

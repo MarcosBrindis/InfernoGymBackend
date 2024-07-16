@@ -5,7 +5,7 @@ import { User } from '../models/User';
 export class UserRepository {
   public static async findAll(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT user_id, role_id_fk, nickname FROM user', (error: any, results) => {
+      connection.query('SELECT user_id, role_id_fk, name FROM user', (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -33,9 +33,9 @@ export class UserRepository {
     });
   }
 
-  public static async findByNickname(nickname: string): Promise<User | null> {
+  public static async findByName(name: string): Promise<User | null> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM user WHERE nickname = ?', [nickname], (error: any, results) => {
+      connection.query('SELECT * FROM user WHERE name = ?', [name], (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -51,9 +51,23 @@ export class UserRepository {
   }
 
   public static async createUser(user: User): Promise<User> {
-    const query = 'INSERT INTO user (nickname, role_id_fk, password, created_at, created_by, updated_at, updated_by, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
-      connection.execute(query, [user.nickname, user.role_id_fk, user.password, user.created_at, user.created_by, user.updated_at, user.updated_by, user.deleted], (error, result: ResultSetHeader) => {
+      connection.execute(query, [
+        user.name, 
+        user.password, 
+        user.weight || null, 
+        user.height || null, 
+        user.age || null, 
+        user.progress || null, 
+        user.subscription || null, 
+        user.created_at || null, 
+        user.created_by || null, 
+        user.updated_at || null, 
+        user.updated_by || null, 
+        user.deleted || false, 
+        user.role_id_fk || null
+      ], (error, result: ResultSetHeader) => {
         if (error) {
           reject(error);
         } else {
@@ -64,11 +78,20 @@ export class UserRepository {
       });
     });
   }
+  
 
   public static async updateUser(user_id: number, userData: User): Promise<User | null> {
-    const query = 'UPDATE user SET nickname = ?, role_id_fk = ?, password = ?, updated_at = ?, updated_by = ?, deleted = ? WHERE user_id = ?';
+    const query = 'UPDATE user SET name = ?, role_id_fk = ?, password = ?, updated_at = ?, updated_by = ?, deleted = ? WHERE user_id = ?';
     return new Promise((resolve, reject) => {
-      connection.execute(query, [userData.nickname, userData.role_id_fk, userData.password, userData.updated_at, userData.updated_by, userData.deleted, user_id], (error, result: ResultSetHeader) => {
+      connection.execute(query, [
+        userData.name, 
+        userData.role_id_fk || null, 
+        userData.password, 
+        userData.updated_at, 
+        userData.updated_by || null, 
+        userData.deleted || false, 
+        user_id
+      ], (error, result: ResultSetHeader) => {
         if (error) {
           reject(error);
         } else {
