@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { MailService } from '../services/mailService';
 import { Mail } from '../models/mailModel';
+import { AuthRequest } from '../../shared/config/types/authRequest';
 
-export const getMails = async (_req: Request, res: Response): Promise<void> => {
+export const getMails = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const mails = await MailService.getMails();
     res.json(mails);
@@ -11,7 +12,7 @@ export const getMails = async (_req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getMailById = async (req: Request, res: Response): Promise<void> => {
+export const getMailById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const mail = await MailService.getMailById(parseInt(req.params.id, 10));
     if (mail) {
@@ -24,31 +25,50 @@ export const getMailById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const createMail = async (req: Request, res: Response): Promise<void> => {
+export const createMail = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
-    const newMail: Mail = req.body;
+    const userId = req.user?.user_id; // El ID del usuario está en req.user
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const newMail: Mail = {
+      messages: req.body.messages,
+      created_by: userId,
+      updated_by: userId
+    };
+
     await MailService.createMail(newMail);
-    res.status(201).send('Mail created');
+    return res.status(201).send('Mail created');
   } catch (err) {
-    res.status(500).send('Error al crear el mail');
+    return res.status(500).send('Error al crear el mail');
   }
 };
 
-export const updateMail = async (req: Request, res: Response): Promise<void> => {
+export const updateMail = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
-    const updatedMail: Mail = req.body;
+    const userId = req.user?.user_id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const updatedMail: Mail = {
+      messages: req.body.messages,
+      updated_by: userId
+    };
+
     await MailService.updateMail(parseInt(req.params.id, 10), updatedMail);
-    res.send('Mail updated');
+    return res.send('Mail updated');
   } catch (err) {
-    res.status(500).send('Error al actualizar el mail');
+    return res.status(500).send('Error al actualizar el mail');
   }
 };
 
-export const deleteMail = async (req: Request, res: Response): Promise<void> => {
+export const deleteMail = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
     await MailService.deleteMail(parseInt(req.params.id, 10));
-    res.send('Mail deleted');
+    return res.send('Mail deleted');
   } catch (err) {
-    res.status(500).send('Error al eliminar el mail');
+    return res.status(500).send('Error al eliminar el mail');
   }
 };
