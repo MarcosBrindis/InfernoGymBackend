@@ -16,9 +16,9 @@ export class UserRepository {
     });
   }
 
-  public static async findById(user_id: number): Promise<User | null> {
+  public static async findById(id: number): Promise<User | null> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM user WHERE user_id = ?', [user_id], (error: any, results) => {
+      connection.query('SELECT u.*, r.title as role_title FROM user u JOIN role_user r ON u.role_id_fk = r.role_id WHERE u.user_id = ?', [id], (error: any, results) => {
         if (error) {
           reject(error);
         } else {

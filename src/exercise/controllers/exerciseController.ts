@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ExerciseService } from '../services/exerciseService';
 import { Exercise } from '../models/exerciseModel';
 import { AuthRequest } from '../../shared/config/types/authRequest';
+import { authorizeRole } from '../../shared/middlewares/auth'; 
 
 export const getExercises = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -45,9 +46,12 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
       updated_by: userId.toString(),
     };
 
-    const createdExercise = await ExerciseService.createExercise(newExercise as Exercise);
-    await ExerciseService.addUserExercise(userId, createdExercise.id!, userId);
-    res.status(201).send('Exercise created');
+    // Usar authorizeRole para verificar roles antes de crear el ejercicio
+    await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
+      const createdExercise = await ExerciseService.createExercise(newExercise as Exercise);
+      await ExerciseService.addUserExercise(userId, createdExercise.id!, userId);
+      res.status(201).send('Exercise created');
+    });
   } catch (err) {
     res.status(500).send('Error al crear el ejercicio');
   }
@@ -72,8 +76,11 @@ export const updateExercise = async (req: AuthRequest, res: Response): Promise<v
       updated_by: userId.toString(),
     };
 
-    await ExerciseService.updateExercise(parseInt(req.params.id, 10), updatedExercise as Exercise);
-    res.send('Exercise updated');
+    // Usar authorizeRole para verificar roles antes de actualizar el ejercicio
+    await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
+      await ExerciseService.updateExercise(parseInt(req.params.id, 10), updatedExercise as Exercise);
+      res.send('Exercise updated');
+    });
   } catch (err) {
     res.status(500).send('Error al actualizar el ejercicio');
   }
@@ -88,9 +95,12 @@ export const deleteExercise = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    await ExerciseService.deleteExercise(parseInt(req.params.id, 10));
-    await ExerciseService.removeUserExercise(userId, parseInt(req.params.id, 10));
-    res.send('Exercise deleted');
+    // Usar authorizeRole para verificar roles antes de eliminar el ejercicio
+    await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
+      await ExerciseService.deleteExercise(parseInt(req.params.id, 10));
+      await ExerciseService.removeUserExercise(userId, parseInt(req.params.id, 10));
+      res.send('Exercise deleted');
+    });
   } catch (err) {
     res.status(500).send('Error al eliminar el ejercicio');
   }
