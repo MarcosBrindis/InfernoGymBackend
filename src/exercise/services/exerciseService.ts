@@ -21,4 +21,16 @@ export class ExerciseService {
   public static async deleteExercise(id: number): Promise<boolean> {
     return ExerciseRepository.deleteExercise(id);
   }
+
+  public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
+    return ExerciseRepository.addUserExercise(userId, exerciseId, createdBy);
+  }
+
+  public static async removeUserExercise(userId: number, exerciseId: number): Promise<void> {
+    return ExerciseRepository.removeUserExercise(userId, exerciseId);
+  }
+
+  public static async getUserExercises(userId: number): Promise<Exercise[]> {
+    return ExerciseRepository.getUserExercises(userId);
+  }
 }

@@ -100,4 +100,49 @@ export class ExerciseRepository {
     });
   }
 
+
+  public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
+    const query = 'INSERT INTO user_exercise (user_id, exercise_id, created_by, updated_by) VALUES (?, ?, ?, ?)';
+    return new Promise((resolve, reject) => {
+      connection.execute(query, [userId, exerciseId, createdBy, createdBy], (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  public static async removeUserExercise(userId: number, exerciseId: number): Promise<void> {
+    const query = 'DELETE FROM user_exercise WHERE user_id = ? AND exercise_id = ?';
+    return new Promise((resolve, reject) => {
+      connection.execute(query, [userId, exerciseId], (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  public static async getUserExercises(userId: number): Promise<Exercise[]> {
+    const query = `
+      SELECT e.* FROM exercise e
+      JOIN user_exercise ue ON e.exercise_id = ue.exercise_id
+      WHERE ue.user_id = ?
+    `;
+    return new Promise((resolve, reject) => {
+      connection.query(query, [userId], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          const exercises: Exercise[] = results as Exercise[];
+          resolve(exercises);
+        }
+      });
+    });
+  }
+
 }
