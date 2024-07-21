@@ -26,7 +26,8 @@ export class UserService {
       const payload = {
         user_id: user.user_id,
         role_id_fk: user.role_id_fk,
-        name: user.name
+        name: user.name,
+        subscription_id: user.subscription_id
       };
       return await jwt.sign(payload, secretKey, { expiresIn: '5m' });
     } catch (error: any) {
@@ -87,6 +88,9 @@ export class UserService {
         }
         if (userData.deleted !== undefined) {
           userFound.deleted = userData.deleted;
+        }
+        if (userData.subscription_id) {
+          userFound.subscription_id = userData.subscription_id;
         }
       } else {
         return null;

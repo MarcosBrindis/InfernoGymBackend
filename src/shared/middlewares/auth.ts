@@ -90,3 +90,42 @@ function getUserRoleName(role_id_fk?: number): string | null {
       return null;
   }
 }
+
+
+// Middleware para autorización basada en subscription_id
+export const authorizeSubscription = (allowedSubscriptionNames: string[]) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userSubscriptionId = req.user?.subscription_id;
+
+    if (!userSubscriptionId) {
+      return res.status(403).json({ message: 'Access forbidden: No subscription assigned' });
+    }
+
+    try {
+      const subscription = await getSubscriptionById(userSubscriptionId);
+
+      if (!subscription) {
+        return res.status(403).json({ message: 'Access forbidden: Invalid subscription' });
+      }
+
+      if (!allowedSubscriptionNames.includes(subscription.name)) {
+        return res.status(403).json({ message: 'Access forbidden: Subscription does not match' });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Error in authorizeSubscription middleware:', error);
+      return res.status(500).json({ message: 'Error retrieving subscription data' });
+    }
+  };
+};
+
+
+async function getSubscriptionById(subscription_id: number) {
+  const mockSubscriptions = [
+    { id: 1, name: 'Basic' },
+    { id: 2, name: 'Premium' },
+    { id: 3, name: 'free' }
+  ];
+  return mockSubscriptions.find(sub => sub.id === subscription_id) || null;
+}

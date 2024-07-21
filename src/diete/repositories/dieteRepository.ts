@@ -35,12 +35,11 @@ export class DieteRepository {
   }
 
   public static async createDiete(diete: Diete, userId: number): Promise<Diete> {
-    const query = 'INSERT INTO diete (foods, progress, subscription, created_by, updated_by, user_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO diete (foods, progress, created_by, updated_by, user_id) VALUES (?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         diete.foods,
         diete.progress,
-        diete.subscription,
         userId, 
         userId, 
         userId
@@ -57,12 +56,11 @@ export class DieteRepository {
   }
 
   public static async updateDiete(id: number, dieteData: Diete, userId: number): Promise<Diete | null> {
-    const query = 'UPDATE diete SET foods = ?, progress = ?, subscription = ?, updated_by = ? WHERE diete_id = ?';
+    const query = 'UPDATE diete SET foods = ?, progress = ?, updated_by = ? WHERE diete_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         dieteData.foods,
         dieteData.progress,
-        dieteData.subscription,
         userId,
         id
       ], (error, result: ResultSetHeader) => {

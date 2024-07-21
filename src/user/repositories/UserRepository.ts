@@ -5,7 +5,7 @@ import { User } from '../models/User';
 export class UserRepository {
   public static async findAll(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT user_id, role_id_fk, name FROM user', (error: any, results) => {
+      connection.query('SELECT user_id, role_id_fk,subscription_id ,name FROM user', (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -18,7 +18,7 @@ export class UserRepository {
 
   public static async findById(id: number): Promise<User | null> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT u.*, r.title as role_title FROM user u JOIN role_user r ON u.role_id_fk = r.role_id WHERE u.user_id = ?', [id], (error: any, results) => {
+      connection.query('SELECT u.*, r.title as role_title, s.name as subscription_name FROM user u JOIN role_user r ON u.role_id_fk = r.role_id LEFT JOIN subscription s ON u.subscription_id = s.subscription_id WHERE u.user_id = ?', [id], (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -51,7 +51,7 @@ export class UserRepository {
   }
 
   public static async createUser(user: User): Promise<User> {
-    const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         user.name, 
@@ -60,7 +60,7 @@ export class UserRepository {
         user.height || null, 
         user.age || null, 
         user.progress || null, 
-        user.subscription || null, 
+        user.subscription_id || null, 
         user.created_at || null, 
         user.created_by || null, 
         user.updated_at || null, 
@@ -78,10 +78,9 @@ export class UserRepository {
       });
     });
   }
-  
 
   public static async updateUser(user_id: number, userData: User): Promise<User | null> {
-    const query = 'UPDATE user SET name = ?, role_id_fk = ?, password = ?, updated_at = ?, updated_by = ?, deleted = ? WHERE user_id = ?';
+    const query = 'UPDATE user SET name = ?, role_id_fk = ?, password = ?, updated_at = ?, updated_by = ?, deleted = ?, subscription_id = ? WHERE user_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         userData.name, 
@@ -90,6 +89,7 @@ export class UserRepository {
         userData.updated_at, 
         userData.updated_by || null, 
         userData.deleted || false, 
+        userData.subscription_id || null,
         user_id
       ], (error, result: ResultSetHeader) => {
         if (error) {
