@@ -3,7 +3,6 @@ import { DieteService } from '../services/dieteService';
 import { Diete } from '../models/dieteModel';
 import { AuthRequest } from '../../shared/config/types/authRequest';
 
-
 export const getDietes = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const dietes = await DieteService.getDietes();
@@ -33,7 +32,7 @@ export const createDiete = async (req: AuthRequest, res: Response): Promise<void
 
     if (userId === undefined) {
       res.status(400).json({ message: 'User ID is missing' });
-      return; // Detiene la ejecución aquí
+      return;
     }
 
     await DieteService.createDiete(newDiete, userId);
@@ -50,7 +49,7 @@ export const updateDiete = async (req: AuthRequest, res: Response): Promise<void
 
     if (userId === undefined) {
       res.status(400).json({ message: 'User ID is missing' });
-      return; // Detiene la ejecución aquí
+      return;
     }
 
     await DieteService.updateDiete(parseInt(req.params.id, 10), updatedDiete, userId);
