@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser } from '../controllers/userController';
+import { getUsers, getUserById,getUserByName ,createUser, updateUser, deleteUser, loginUser } from '../controllers/userController';
 import { authMiddleware } from '../../shared/middlewares/auth';
 import { authorizeRole } from '../../shared/middlewares/auth';
 
@@ -9,6 +9,7 @@ userRoutes.post('/login', loginUser);
 
 userRoutes.get('/', authMiddleware,authorizeRole(['Administrador']), getUsers);
 userRoutes.get('/:user_id', authMiddleware,authorizeRole(['Administrador']), getUserById);
+userRoutes.get('/name/:name', authMiddleware, getUserByName);
 userRoutes.post('/', createUser );
 userRoutes.put('/:user_id', authMiddleware, updateUser );
 userRoutes.delete('/:user_id', authMiddleware, deleteUser);

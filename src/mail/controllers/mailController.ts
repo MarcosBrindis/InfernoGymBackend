@@ -3,18 +3,42 @@ import { MailService } from '../services/mailService';
 import { Mail } from '../models/mailModel';
 import { AuthRequest } from '../../shared/config/types/authRequest';
 
-export const getMails = async (_req: AuthRequest, res: Response): Promise<void> => {
+export const getMailsByRecipientId = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const mails = await MailService.getMails();
+    const recipientId = parseInt(req.params.recipient_id, 10);
+    const mails = await MailService.getMailsByRecipientId(recipientId);
     res.json(mails);
   } catch (err) {
     res.status(500).send('Error al obtener los datos');
   }
 };
 
+
+export const getMails = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.user_id;
+    if (!userId) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const mails = await MailService.getMails(userId);
+    res.json(mails);
+  } catch (err) {
+    res.status(500).send('Error al obtener los datos');
+  }
+};
+
+
 export const getMailById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const mail = await MailService.getMailById(parseInt(req.params.id, 10));
+    const userId = req.user?.user_id;
+    if (!userId) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const mail = await MailService.getMailById(parseInt(req.params.id, 10), userId);
     if (mail) {
       res.status(200).json(mail);
     } else {
@@ -25,21 +49,32 @@ export const getMailById = async (req: AuthRequest, res: Response): Promise<void
   }
 };
 
+
 export const createMail = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
-    const userId = req.user?.user_id; // El ID del usuario está en req.user
+    const userId = req.user?.user_id;
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    const { messages, recipient_id } = req.body;
+
+    if (!recipient_id) {
+      return res.status(400).json({ message: 'Recipient ID is required' });
+    }
+
+    // Optionally: Validate recipient_id exists in the database
+
     const newMail: Mail = {
-      messages: req.body.messages,
+      messages,
       created_by: userId,
-      updated_by: userId
+      updated_by: userId,
+      recipient_id,
+      
     };
 
-    await MailService.createMail(newMail);
-    return res.status(201).send('Mail created');
+    const createdMail = await MailService.createMail(newMail);
+    return res.status(201).json(createdMail);
   } catch (err) {
     return res.status(500).send('Error al crear el mail');
   }
@@ -52,13 +87,25 @@ export const updateMail = async (req: AuthRequest, res: Response): Promise<Respo
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    const { messages, recipient_id } = req.body;
+    const mailId = parseInt(req.params.id, 10);
+
+    if (!recipient_id) {
+      return res.status(400).json({ message: 'Recipient ID is required' });
+    }
+
     const updatedMail: Mail = {
-      messages: req.body.messages,
-      updated_by: userId
+      messages,
+      updated_by: userId,
+      recipient_id
     };
 
-    await MailService.updateMail(parseInt(req.params.id, 10), updatedMail);
-    return res.send('Mail updated');
+    const mail = await MailService.updateMail(mailId, updatedMail);
+    if (mail) {
+      return res.status(200).json(mail);
+    } else {
+      return res.status(404).json({ message: 'Mail not found' });
+    }
   } catch (err) {
     return res.status(500).send('Error al actualizar el mail');
   }
@@ -66,8 +113,13 @@ export const updateMail = async (req: AuthRequest, res: Response): Promise<Respo
 
 export const deleteMail = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
-    await MailService.deleteMail(parseInt(req.params.id, 10));
-    return res.send('Mail deleted');
+    const mailId = parseInt(req.params.id, 10);
+    const success = await MailService.deleteMail(mailId);
+    if (success) {
+      return res.status(200).send('Mail deleted');
+    } else {
+      return res.status(404).json({ message: 'Mail not found' });
+    }
   } catch (err) {
     return res.status(500).send('Error al eliminar el mail');
   }

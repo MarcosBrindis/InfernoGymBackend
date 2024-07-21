@@ -44,6 +44,20 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+export const getUserByName = async (req: Request, res: Response) => {
+  try {
+    const name = req.params.name;
+    const user = await UserService.getUserByName(name);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const newUser = await UserService.addUser(req.body);

@@ -129,3 +129,43 @@ async function getSubscriptionById(subscription_id: number) {
   ];
   return mockSubscriptions.find(sub => sub.id === subscription_id) || null;
 }
+
+/*
+// Middleware para autorización basada en mail create 
+export const authorizeMailAccess = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.user_id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const mailId = parseInt(req.params.id, 10);
+
+    if (req.method === 'POST' || req.method === 'PUT') {
+      const { recipient_id } = req.body;
+      if (req.method === 'POST') {
+        // For creating mail, only ensure recipient_id is provided
+        if (!recipient_id) {
+          return res.status(400).json({ message: 'Recipient ID is required' });
+        }
+      } else if (req.method === 'PUT') {
+        // For updating mail, verify the ownership
+        const mail = await MailService.getMailById(mailId);
+        if (mail && mail.created_by !== userId && mail.recipient_id !== userId) {
+          return res.status(403).json({ message: 'Access forbidden' });
+        }
+      }
+    } else if (req.method === 'DELETE' || req.method === 'GET') {
+      // For getting or deleting mail, verify the ownership
+      const mail = await MailService.getMailById(mailId);
+      if (mail && mail.created_by !== userId && mail.recipient_id !== userId) {
+        return res.status(403).json({ message: 'Access forbidden' });
+      }
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error in authorizeMailAccess middleware:', error);
+    return res.status(500).json({ message: 'Error retrieving mail data' });
+  }
+};*/
