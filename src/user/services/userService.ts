@@ -61,6 +61,12 @@ export class UserService {
 
   public static async addUser(user: User) {
     try {
+      // Verificar si el usuario ya existe
+      const existingUser = await UserRepository.findByName(user.name);
+      if (existingUser) {
+        throw new Error('El nombre de usuario ya existe');
+      }
+
       const salt = await bcrypt.genSalt(saltRounds);
       user.created_at = DateUtils.formatDate(new Date());
       user.updated_at = DateUtils.formatDate(new Date());
@@ -77,6 +83,14 @@ export class UserService {
       const salt = await bcrypt.genSalt(saltRounds);
 
       if (userFound) {
+        // Verificar si el nuevo nombre de usuario ya existe para otro usuario
+        if (userData.name && userData.name !== userFound.name) {
+          const existingUser = await UserRepository.findByName(userData.name);
+          if (existingUser) {
+            throw new Error('El nombre de usuario ya existe');
+          }
+        }
+
         if (userData.name) {
           userFound.name = userData.name;
         }
