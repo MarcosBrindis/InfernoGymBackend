@@ -86,6 +86,51 @@ export const getClients = async (_req: Request, res: Response) => {
   }
 };
 
+// Métodos para gestión de relación cliente-empleados con validaciones
+export const addUserClientRelation = async (req: Request, res: Response) => {
+  const { userId, clientId } = req.body;
+  
+  try {
+    // Validar si userId es Nutricionista o Coach
+    const isValidUser = await UserService.isRole(userId, [3, 4]);
+    if (!isValidUser) {
+      return res.status(400).json({ message: 'El usuario debe ser Nutricionista o Coach.' });
+    }
+
+    // Validar si clientId es Cliente
+    const isValidClient = await UserService.isRole(clientId, [2]);
+    if (!isValidClient) {
+      return res.status(400).json({ message: 'El cliente debe tener el rol Cliente.' });
+    }
+
+    await UserService.addUserClientRelation(userId, clientId);
+    res.status(201).json({ message: 'Relación usuario-cliente añadida exitosamente.' });
+  } catch (error: any) {
+    console.error('Error al añadir relación usuario-cliente:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getClientsByUserId = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId, 10);
+  
+  try {
+    const isValidUser = await UserService.isRole(userId, [3, 4]);
+    if (!isValidUser) {
+      return res.status(400).json({ message: 'El usuario debe ser Nutricionista o Coach para ver sus clientes.' });
+    }
+
+    const clients = await UserService.getClientsByUserId(userId);
+    if (clients.length > 0) {
+      res.status(200).json(clients);
+    } else {
+      res.status(404).json({ message: 'No se encontraron clientes para este usuario.' });
+    }
+  } catch (error: any) {
+    console.error('Error al obtener clientes por ID de usuario:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -106,7 +151,7 @@ export const updateUser = async (req: Request, res: Response) => {
     if(updatedUser){
       res.status(200).json(updatedUser);
     } else {
-      res.status(404).json({ message: 'Algo salio mal' });
+      res.status(404).json({ message: 'No se encontró el usuario' });
     }
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -115,11 +160,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const deleted = await UserService.deleteUser(parseInt(req.params.user_id, 10));
-    if(deleted){
-      res.status(200).json({ message: 'Se eliminó el usuario.' });
+    const deleteUser = await UserService.deleteUser(parseInt(req.params.user_id, 10));
+    if(deleteUser){
+      res.status(204).json(deleteUser);
     } else {
-      res.status(404).json({ message: 'Algo salio mal' });
+      res.status(404).json({ message: 'No se encontró el usuario' });
     }
   } catch (error: any) {
     res.status(500).json({ error: error.message });

@@ -46,27 +46,18 @@ CREATE TABLE exercise (
     deleted BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE diete (
-    diete_id INT AUTO_INCREMENT PRIMARY KEY,
-    foods TEXT NOT NULL,
-    progress TEXT,
-    subscription BOOLEAN DEFAULT 0, 
+CREATE TABLE user_exercise (
+    user_exercise_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    exercise_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INT NOT NULL,
+    created_by INT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by INT,
-    deleted BOOLEAN DEFAULT FALSE
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (exercise_id) REFERENCES exercise(exercise_id)
 );
 
-CREATE TABLE mail (
-    mail_id INT AUTO_INCREMENT PRIMARY KEY,
-    messages TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INT NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    updated_by INT,
-    deleted BOOLEAN DEFAULT FALSE
-); 
 
 create table role_user (
 role_id int primary key AUTO_INCREMENT,
@@ -79,28 +70,101 @@ updated_by varchar(50),
 deleted boolean DEFAULT FALSE
 );
 
+CREATE TABLE subscription (
+  subscription_id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at datetime NOT NULL,
+created_by varchar(50),
+updated_at datetime NOT NULL,
+updated_by varchar(50),
+deleted boolean DEFAULT FALSE
+);
+
 CREATE TABLE user (
   user_id INT PRIMARY KEY AUTO_INCREMENT,
-  nickname VARCHAR(50) NOT NULL,
-  password  VARCHAR(255) NOT NULL, 
-  role_id_fk INT NOT NULL,
-  created_at DATETIME NOT NULL,
-  created_by VARCHAR(50),
-  updated_at DATETIME NOT NULL,
-  updated_by VARCHAR(50),
+  name VARCHAR(255),
+  password VARCHAR(255), -- Campo de password agregado
+  weight DECIMAL,
+  height DECIMAL,
+  age INT,
+  progress TEXT,
+  subscription_id INT, -- Campo de suscripción ahora referencia a la tabla subscription
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_by INT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT,
   deleted BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (role_id_fk) REFERENCES role_user(role_id)
+  role_id_fk INT,
+  CONSTRAINT fk_created_by FOREIGN KEY (created_by) REFERENCES user(user_id),
+  CONSTRAINT fk_updated_by FOREIGN KEY (updated_by) REFERENCES user(user_id),
+  CONSTRAINT fk_role_id FOREIGN KEY (role_id_fk) REFERENCES role_user(role_id),
+  CONSTRAINT fk_subscription_id FOREIGN KEY (subscription_id) REFERENCES subscription(subscription_id)
+);
+
+CREATE TABLE user_client (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    client_id INT,
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (client_id) REFERENCES user(user_id)
 );
 
 
-SELECT * FROM role_user;
+CREATE TABLE diete (
+  diete_id INT PRIMARY KEY AUTO_INCREMENT,
+  foods TEXT,
+  progress TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_by INT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT,
+  user_id INT,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (created_by) REFERENCES user(user_id),
+  FOREIGN KEY (updated_by) REFERENCES user(user_id),
+  FOREIGN KEY (user_id) REFERENCES user(user_id)
+);
 
-es necesario crear este elemento para poder asignar un rol
+    
+CREATE TABLE mail (
+    mail_id INT AUTO_INCREMENT PRIMARY KEY,
+    messages TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT,
+    deleted BOOLEAN DEFAULT FALSE,
+    recipient_id INT,
+    FOREIGN KEY (recipient_id) REFERENCES user(user_id),
+    FOREIGN KEY (created_by) REFERENCES user(user_id),
+    FOREIGN KEY (updated_by) REFERENCES user(user_id)
+);
+
+
+
 INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
 VALUES ('Administrador', 'Rol de administrador', NOW(), 'admin', NOW(), 'admin', FALSE);
 
+INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
+VALUES ('Cliente', 'Rol de cliente', NOW(), 'clien', NOW(), 'clien', FALSE);
+
+INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
+VALUES ('Nutricionista', 'Rol de nutricionista', NOW(), 'nutri', NOW(), 'nutri', FALSE);
+
+INSERT INTO role_user (title, description, created_at, created_by, updated_at, updated_by, deleted) 
+VALUES ('Coach ', 'Rol de coach ', NOW(), 'coach ', NOW(), 'coach ', FALSE);
 SELECT * FROM role_user WHERE title = 'Administrador';
 
-DESCRIBE role_user;
-DESCRIBE user;
-SELECT * FROM user
+SELECT * FROM subscription;
+-- Inserta la suscripción Free
+INSERT INTO subscription (name, description, created_at, created_by, updated_at, updated_by, deleted)
+VALUES ('Free', 'Free subscription', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', FALSE);
+
+-- Inserta la suscripción Basic
+INSERT INTO subscription (name, description, created_at, created_by, updated_at, updated_by, deleted)
+VALUES ('Basic', 'Basic subscription', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', FALSE);
+
+-- Inserta la suscripción Premium
+INSERT INTO subscription (name, description, created_at, created_by, updated_at, updated_by, deleted)
+VALUES ('Premium', 'Premium subscription', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', FALSE);

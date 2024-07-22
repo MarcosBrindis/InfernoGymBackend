@@ -59,24 +59,47 @@ export class UserService {
     }
   }
 
- 
-    // Método para obtener usuarios por roles
-    public static async getUsersByRoles(roleIds: number[]): Promise<User[]> {
-      try {
-        return await UserRepository.findByRoles(roleIds);
-      } catch (error: any) {
-        throw new Error(`Error al obtener usuarios por roles: ${error.message}`);
-      }
+  public static async getUsersByRoles(roleIds: number[]): Promise<User[]> {
+    try {
+      return await UserRepository.findByRoles(roleIds);
+    } catch (error: any) {
+      throw new Error(`Error al obtener usuarios por roles: ${error.message}`);
     }
+  }
+
+  // Métodos para gestión de relación cliente-empleados
+  public static async addUserClientRelation(userId: number, clientId: number): Promise<void> {
+    try {
+      await UserRepository.addUserClientRelation(userId, clientId);
+    } catch (error: any) {
+      throw new Error(`Error al añadir relación usuario-cliente: ${error.message}`);
+    }
+  }
+
+  public static async getClientsByUserId(userId: number): Promise<User[]> {
+    try {
+      return await UserRepository.getClientsByUserId(userId);
+    } catch (error: any) {
+      throw new Error(`Error al obtener clientes por ID de usuario: ${error.message}`);
+    }
+  }
+
+  public static async isRole(userId: number, roleIds: number[]): Promise<boolean> {
+    try {
+      const user = await UserRepository.findById(userId);
+      return user && user.role_id_fk !== undefined ? roleIds.includes(user.role_id_fk) : false;
+    } catch (error: any) {
+      throw new Error(`Error al validar el rol del usuario: ${error.message}`);
+    }
+  }
+  
 
   public static async addUser(user: User) {
     try {
-      // Verificar si el usuario ya existe
       const existingUser = await UserRepository.findByName(user.name);
       if (existingUser) {
         throw new Error('El nombre de usuario ya existe');
       }
-
       const salt = await bcrypt.genSalt(saltRounds);
       user.created_at = DateUtils.formatDate(new Date());
       user.updated_at = DateUtils.formatDate(new Date());
@@ -93,7 +116,6 @@ export class UserService {
       const salt = await bcrypt.genSalt(saltRounds);
 
       if (userFound) {
-        // Verificar si el nuevo nombre de usuario ya existe para otro usuario
         if (userData.name && userData.name !== userFound.name) {
           const existingUser = await UserRepository.findByName(userData.name);
           if (existingUser) {

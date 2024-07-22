@@ -65,9 +65,39 @@ export class UserRepository {
       });
     });
   }
+//metodos para  gestion de relacion cliente empleados
+public static async addUserClientRelation(userId: number, clientId: number): Promise<void> {
+  const query = 'INSERT INTO user_client (user_id, client_id) VALUES (?, ?)';
+  return new Promise((resolve, reject) => {
+      connection.execute(query, [userId, clientId], (error) => {
+          if (error) {
+              reject(error);
+          } else {
+              resolve();
+          }
+      });
+  });
+}
 
+public static async getClientsByUserId(userId: number): Promise<User[]> {
+  const query = `
+      SELECT u.*
+      FROM user u
+      INNER JOIN user_client uc ON u.user_id = uc.client_id
+      WHERE uc.user_id = ?
+  `;
+  return new Promise((resolve, reject) => {
+      connection.query(query, [userId], (error, results) => {
+          if (error) {
+              reject(error);
+          } else {
+              resolve(results as User[]);
+          }
+      });
+  });
+}
 
-
+////////
   public static async createUser(user: User): Promise<User> {
     const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
