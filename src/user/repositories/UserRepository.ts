@@ -50,6 +50,24 @@ export class UserRepository {
     });
   }
 
+// Método para obtener usuarios por roles
+  public static async findByRoles(roleIds: number[]): Promise<User[]> {
+    return new Promise((resolve, reject) => {
+      const placeholders = roleIds.map(() => '?').join(',');
+      const query = `SELECT user_id, role_id_fk, subscription_id, name FROM user WHERE role_id_fk IN (${placeholders})`;
+      connection.query(query, roleIds, (error: any, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          const users: User[] = results as User[];
+          resolve(users);
+        }
+      });
+    });
+  }
+
+
+
   public static async createUser(user: User): Promise<User> {
     const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {

@@ -58,6 +58,35 @@ export const getUserByName = async (req: Request, res: Response) => {
   }
 };
 
+// Endpoint para obtener solo nutricionistas y coaches
+export const getNutricionistsAndCoaches = async (_req: Request, res: Response) => {
+  try {
+    const users = await UserService.getUsersByRoles([3, 4]); // Roles de Nutricionista y Coach
+    if (users) {
+      res.status(200).json(users);
+    } else {
+      res.status(404).json({ message: 'Sin registros' });
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Endpoint para obtener solo clientes
+export const getClients = async (_req: Request, res: Response) => {
+  try {
+    const users = await UserService.getUsersByRoles([2]); // Rol de Cliente
+    if (users) {
+      res.status(200).json(users);
+    } else {
+      res.status(404).json({ message: 'Sin registros' });
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const newUser = await UserService.addUser(req.body);

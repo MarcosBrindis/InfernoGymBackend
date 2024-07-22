@@ -59,6 +59,16 @@ export class UserService {
     }
   }
 
+ 
+    // Método para obtener usuarios por roles
+    public static async getUsersByRoles(roleIds: number[]): Promise<User[]> {
+      try {
+        return await UserRepository.findByRoles(roleIds);
+      } catch (error: any) {
+        throw new Error(`Error al obtener usuarios por roles: ${error.message}`);
+      }
+    }
+
   public static async addUser(user: User) {
     try {
       // Verificar si el usuario ya existe
