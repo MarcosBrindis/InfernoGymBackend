@@ -10,6 +10,14 @@ export class ExerciseService {
     return ExerciseRepository.findById(id);
   }
 
+  public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
+    return ExerciseRepository.addUserExercise(userId, exerciseId, createdBy);
+  }
+
+  public static async getUserExercises(clientId: number): Promise<Exercise[]> {
+    return ExerciseRepository.getUserExercises(clientId);
+  }
+
   public static async createExercise(newItem: Exercise): Promise<Exercise> {
     return ExerciseRepository.createExercise(newItem);
   }
@@ -22,15 +30,9 @@ export class ExerciseService {
     return ExerciseRepository.deleteExercise(id);
   }
 
-  public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
-    return ExerciseRepository.addUserExercise(userId, exerciseId, createdBy);
-  }
 
   public static async removeUserExercise(userId: number, exerciseId: number): Promise<void> {
     return ExerciseRepository.removeUserExercise(userId, exerciseId);
   }
 
-  public static async getUserExercises(userId: number): Promise<Exercise[]> {
-    return ExerciseRepository.getUserExercises(userId);
-  }
 }

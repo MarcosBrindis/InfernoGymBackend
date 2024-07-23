@@ -26,6 +26,45 @@ export const getExerciseById = async (req: Request, res: Response): Promise<void
   }
 };
 
+export const assignExerciseToClient = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { exerciseId, clientId } = req.body;
+    const coachId = req.user?.user_id;
+
+    if (!coachId) {
+      res.status(400).json({ message: 'Coach ID is missing' });
+      return;
+    }
+
+    // Verificar si el usuario es un coach
+    await authorizeRole(['Coach'])(req, res, async () => {
+      await ExerciseService.addUserExercise(clientId, exerciseId, coachId);
+      res.status(201).send('Exercise assigned to client');
+    });
+  } catch (err) {
+    res.status(500).send('Error assigning exercise to client');
+  }
+};
+
+export const unassignExerciseFromClient = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { exerciseId, clientId } = req.body;
+    const coachId = req.user?.user_id;
+
+    if (!coachId) {
+      res.status(400).json({ message: 'Coach ID is missing' });
+      return;
+    }
+    // Verificar si el usuario es un coach
+    await authorizeRole(['Coach'])(req, res, async () => {
+      await ExerciseService.removeUserExercise(clientId, exerciseId);
+      res.status(200).send('Exercise unassigned from client');
+    });
+  } catch (err) {
+    res.status(500).send('Error unassigning exercise from client');
+  }
+};
+
 export const createExercise = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { exercise_name, exercise_description, weightexercise, series, repetitions } = req.body;
@@ -106,16 +145,16 @@ export const deleteExercise = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-export const getUserExercises = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getUserExercises = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.user_id;
+    const clientId = parseInt(req.params.clientId, 10);
 
-    if (!userId) {
-      res.status(400).json({ message: 'User ID is missing' });
+    if (isNaN(clientId)) {
+      res.status(400).json({ message: 'Client ID is invalid' });
       return;
     }
 
-    const exercises = await ExerciseService.getUserExercises(userId);
+    const exercises = await ExerciseService.getUserExercises(clientId);
     res.json(exercises);
   } catch (err) {
     res.status(500).send('Error al obtener los ejercicios del usuario');
