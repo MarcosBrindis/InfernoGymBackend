@@ -34,6 +34,37 @@ export class DieteRepository {
     });
   }
 
+  public static async findDieteByUserId(userId: number): Promise<Diete | null> {
+    const query = 'SELECT * FROM diete WHERE user_id = ? AND deleted = FALSE';
+    return new Promise((resolve, reject) => {
+      connection.query(query, [userId], (error: any, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          const diets: Diete[] = results as Diete[];
+          if (diets.length > 0) {
+            resolve(diets[0]);
+          } else {
+            resolve(null);
+          }
+        }
+      });
+    });
+  }
+
+  public static async assignDieteToClient(dieteId: number, clientId: number, userId: number): Promise<boolean> {
+    const query = 'UPDATE diete SET user_id = ?, updated_by = ? WHERE diete_id = ?';
+    return new Promise((resolve, reject) => {
+      connection.execute(query, [clientId, userId, dieteId], (error, result: ResultSetHeader) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.affectedRows > 0);
+        }
+      });
+    });
+  }
+
   public static async createDiete(diete: Diete, userId: number): Promise<Diete> {
     const query = 'INSERT INTO diete (foods, progress, created_by, updated_by, user_id) VALUES (?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
@@ -48,13 +79,13 @@ export class DieteRepository {
           reject(error);
         } else {
           const createdDieteId = result.insertId;
-          const createdDiete: Diete = { ...diete, diete_id: createdDieteId, created_by: userId, updated_by: userId };
+          const createdDiete: Diete = { ...diete, diete_id: createdDieteId, created_by: userId, updated_by: userId, user_id: userId };
           resolve(createdDiete);
         }
       });
     });
   }
-
+ 
   public static async updateDiete(id: number, dieteData: Diete, userId: number): Promise<Diete | null> {
     const query = 'UPDATE diete SET foods = ?, progress = ?, updated_by = ? WHERE diete_id = ?';
     return new Promise((resolve, reject) => {

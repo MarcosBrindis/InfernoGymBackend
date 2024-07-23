@@ -11,8 +11,23 @@ export class DieteService {
     return DieteRepository.findById(id);
   }
 
-  public static async createDiete(newItem: Diete, userId: number): Promise<Diete> {
-    return DieteRepository.createDiete(newItem, userId);
+  public static async getDieteByUserId(userId: number): Promise<Diete | null> {
+    return DieteRepository.findDieteByUserId(userId);
+  }
+
+  public static async assignDieteToClient(dieteId: number, clientId: number, userId: number): Promise<boolean> {
+    // Assign the new diet
+    return DieteRepository.assignDieteToClient(dieteId, clientId, userId);
+  }
+
+  public static async createDiete(newItem: Diete, userId: number, clientId: number): Promise<Diete> {
+    // Crear la dieta
+    const createdDiete = await DieteRepository.createDiete(newItem, userId);
+    
+    // Asignar la dieta al cliente
+    await DieteService.assignDieteToClient(createdDiete.diete_id!, clientId, userId);
+  
+    return createdDiete;
   }
 
   public static async updateDiete(id: number, updatedItem: Diete, userId: number): Promise<Diete | null> {
