@@ -67,7 +67,7 @@ export const unassignExerciseFromClient = async (req: AuthRequest, res: Response
 
 export const createExercise = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { exercise_name, exercise_description, weightexercise, series, repetitions } = req.body;
+    const { exercise_name, exercise_description, weightexercise, series, repetitions, day_of_week } = req.body;
     const userId = req.user?.user_id;
 
     if (!userId) {
@@ -81,11 +81,11 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
       weightexercise,
       series,
       repetitions,
+      day_of_week, 
       created_by: userId.toString(),
       updated_by: userId.toString(),
     };
 
-    // Usar authorizeRole para verificar roles antes de crear el ejercicio
     await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
       const createdExercise = await ExerciseService.createExercise(newExercise as Exercise);
       await ExerciseService.addUserExercise(userId, createdExercise.id!, userId);
@@ -96,9 +96,10 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
+
 export const updateExercise = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { exercise_name, exercise_description, weightexercise, series, repetitions } = req.body;
+    const { exercise_name, exercise_description, weightexercise, series, repetitions, day_of_week } = req.body;
     const userId = req.user?.user_id;
 
     if (!userId) {
@@ -112,10 +113,10 @@ export const updateExercise = async (req: AuthRequest, res: Response): Promise<v
       weightexercise,
       series,
       repetitions,
+      day_of_week, // Agrega el nuevo campo
       updated_by: userId.toString(),
     };
 
-    // Usar authorizeRole para verificar roles antes de actualizar el ejercicio
     await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
       await ExerciseService.updateExercise(parseInt(req.params.id, 10), updatedExercise as Exercise);
       res.send('Exercise updated');
@@ -124,6 +125,7 @@ export const updateExercise = async (req: AuthRequest, res: Response): Promise<v
     res.status(500).send('Error al actualizar el ejercicio');
   }
 };
+
 
 export const deleteExercise = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

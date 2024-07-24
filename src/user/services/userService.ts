@@ -29,7 +29,7 @@ export class UserService {
         name: user.name,
         subscription_id: user.subscription_id
       };
-      return await jwt.sign(payload, secretKey, { expiresIn: '5m' });
+      return await jwt.sign(payload, secretKey, { expiresIn: '30m' });
     } catch (error: any) {
       throw new Error(`Error al logearse: ${error.message}`);
     }
@@ -106,47 +106,31 @@ export class UserService {
       user.password = await bcrypt.hash(user.password, salt);
       return await UserRepository.createUser(user);
     } catch (error: any) {
-      throw new Error(`Error al crear usuario: ${error.message}`);
+      console.error('Error al crear usuario:', error); // Asegúrate de registrar el error
+      throw new Error('Error al crear usuario: ${error.message}');
     }
   }
 
-  public static async modifyUser(userId: number, userData: User) {
-    try {
-      const userFound = await UserRepository.findById(userId);
-      const salt = await bcrypt.genSalt(saltRounds);
-
-      if (userFound) {
-        if (userData.name && userData.name !== userFound.name) {
-          const existingUser = await UserRepository.findByName(userData.name);
-          if (existingUser) {
-            throw new Error('El nombre de usuario ya existe');
-          }
-        }
-
-        if (userData.name) {
-          userFound.name = userData.name;
-        }
-        if (userData.password) {
-          userFound.password = await bcrypt.hash(userData.password, salt);
-        }
-        if (userData.role_id_fk) {
-          userFound.role_id_fk = userData.role_id_fk;
-        }
-        if (userData.deleted !== undefined) {
-          userFound.deleted = userData.deleted;
-        }
-        if (userData.subscription_id) {
-          userFound.subscription_id = userData.subscription_id;
-        }
-      } else {
-        return null;
-      }
-      userFound.updated_by = userData.updated_by;
-      userFound.updated_at = DateUtils.formatDate(new Date());
-      return await UserRepository.updateUser(userId, userFound);
-    } catch (error: any) {
-      throw new Error(`Error al modificar usuario: ${error.message}`);
+  public static async modifyUser(user_id: number, userData: User): Promise<User | null> {
+    // Si la contraseña está presente, encriptar la nueva contraseña antes de actualizar
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, saltRounds);
     }
+
+    // Llamar a updateUser en UserRepository para actualizar los datos del usuario
+    const updatedUser = await UserRepository.updateUser(user_id, userData);
+    return updatedUser;
+  }
+
+  public static async modifyUsernotpass(user_id: number, userData: User): Promise<User | null> {
+    // Si la contraseña está presente, encriptar la nueva contraseña antes de actualizar
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, saltRounds);
+    }
+
+    // Llamar a updateUser en UserRepository para actualizar los datos del usuario
+    const updatedUser = await UserRepository.updatenotpasswordUser(user_id, userData);
+    return updatedUser;
   }
 
   public static async deleteUser(userId: number): Promise<boolean> {

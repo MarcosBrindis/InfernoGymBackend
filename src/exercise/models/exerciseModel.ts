@@ -5,6 +5,7 @@ export interface Exercise {
   weightexercise: number;
   series: number;
   repetitions: number;
+  day_of_week: number;
   created_at?: string;
   created_by?: string;
   updated_at?: string;

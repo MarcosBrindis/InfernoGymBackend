@@ -35,7 +35,7 @@ export class ExerciseRepository {
   }
 
   public static async createExercise(exercise: Exercise): Promise<Exercise> {
-    const query = 'INSERT INTO exercise (exercise_name, exercise_description, weightexercise, series, repetitions, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO exercise (exercise_name, exercise_description, weightexercise, series, repetitions, day_of_week, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         exercise.exercise_name,
@@ -43,6 +43,7 @@ export class ExerciseRepository {
         exercise.weightexercise,
         exercise.series,
         exercise.repetitions,
+        exercise.day_of_week,
         exercise.created_by,
         exercise.updated_by
       ], (error, result: ResultSetHeader) => {
@@ -56,7 +57,6 @@ export class ExerciseRepository {
       });
     });
   }
-
   public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
     const query = 'INSERT INTO user_exercise (user_id, exercise_id, created_by, updated_by) VALUES (?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
@@ -89,7 +89,7 @@ export class ExerciseRepository {
   }
 
   public static async updateExercise(id: number, exerciseData: Exercise): Promise<Exercise | null> {
-    const query = 'UPDATE exercise SET exercise_name = ?, exercise_description = ?, weightexercise = ?, series = ?, repetitions = ?, updated_by = ? WHERE exercise_id = ?';
+    const query = 'UPDATE exercise SET exercise_name = ?, exercise_description = ?, weightexercise = ?, series = ?, repetitions = ?, day_of_week = ?, updated_by = ? WHERE exercise_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         exerciseData.exercise_name,
@@ -97,6 +97,7 @@ export class ExerciseRepository {
         exerciseData.weightexercise,
         exerciseData.series,
         exerciseData.repetitions,
+        exerciseData.day_of_week, 
         exerciseData.updated_by,
         id
       ], (error, result: ResultSetHeader) => {
@@ -113,6 +114,7 @@ export class ExerciseRepository {
       });
     });
   }
+  
 
   public static async deleteExercise(id: number): Promise<boolean> {
     const query = 'DELETE FROM exercise WHERE exercise_id = ?';

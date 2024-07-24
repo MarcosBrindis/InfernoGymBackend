@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 //import * as dotenv from 'dotenv';
+import cors from 'cors'
+import morgan from 'morgan';
 import dotenv from 'dotenv';
 // Importar rutas de módulos
 import userRoutes from './user/routes/userRoutes';
@@ -19,7 +21,8 @@ dotenv.config();
 // Crear la aplicación de Express
 const app: Application = express();
 const port: number = parseInt(process.env.PORT as string, 10) || 3000;
-
+app.use(morgan('dev'))
+app.use(cors())
 // Middleware de análisis del cuerpo
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

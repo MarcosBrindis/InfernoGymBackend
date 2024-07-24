@@ -5,7 +5,7 @@ import { User } from '../models/User';
 export class UserRepository {
   public static async findAll(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT user_id, role_id_fk,subscription_id ,name FROM user', (error: any, results) => {
+      connection.query('SELECT user_id, role_id_fk, subscription_id, name, goal FROM user', (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -50,11 +50,10 @@ export class UserRepository {
     });
   }
 
-// Método para obtener usuarios por roles
   public static async findByRoles(roleIds: number[]): Promise<User[]> {
     return new Promise((resolve, reject) => {
       const placeholders = roleIds.map(() => '?').join(',');
-      const query = `SELECT user_id, role_id_fk, subscription_id, name FROM user WHERE role_id_fk IN (${placeholders})`;
+      const query = `SELECT user_id, role_id_fk, subscription_id, name, goal FROM user WHERE role_id_fk IN (${placeholders})`;
       connection.query(query, roleIds, (error: any, results) => {
         if (error) {
           reject(error);
@@ -65,41 +64,40 @@ export class UserRepository {
       });
     });
   }
-//metodos para  gestion de relacion cliente empleados
-public static async addUserClientRelation(userId: number, clientId: number): Promise<void> {
-  const query = 'INSERT INTO user_client (user_id, client_id) VALUES (?, ?)';
-  return new Promise((resolve, reject) => {
-      connection.execute(query, [userId, clientId], (error) => {
-          if (error) {
-              reject(error);
-          } else {
-              resolve();
-          }
-      });
-  });
-}
 
-public static async getClientsByUserId(userId: number): Promise<User[]> {
-  const query = `
+  public static async addUserClientRelation(userId: number, clientId: number): Promise<void> {
+    const query = 'INSERT INTO user_client (user_id, client_id) VALUES (?, ?)';
+    return new Promise((resolve, reject) => {
+      connection.execute(query, [userId, clientId], (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  public static async getClientsByUserId(userId: number): Promise<User[]> {
+    const query = `
       SELECT u.*
       FROM user u
       INNER JOIN user_client uc ON u.user_id = uc.client_id
       WHERE uc.user_id = ?
-  `;
-  return new Promise((resolve, reject) => {
+    `;
+    return new Promise((resolve, reject) => {
       connection.query(query, [userId], (error, results) => {
-          if (error) {
-              reject(error);
-          } else {
-              resolve(results as User[]);
-          }
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results as User[]);
+        }
       });
-  });
-}
+    });
+  }
 
-////////
   public static async createUser(user: User): Promise<User> {
-    const query = 'INSERT INTO user (name, password, weight, height, age, progress, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO user (name, password, weight, height, age, progress, goal, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         user.name, 
@@ -107,7 +105,8 @@ public static async getClientsByUserId(userId: number): Promise<User[]> {
         user.weight || null, 
         user.height || null, 
         user.age || null, 
-        user.progress || null, 
+        user.progress || null,
+        user.goal || null,  // Campo nuevo agregado
         user.subscription_id || null, 
         user.created_at || null, 
         user.created_by || null, 
@@ -128,16 +127,42 @@ public static async getClientsByUserId(userId: number): Promise<User[]> {
   }
 
   public static async updateUser(user_id: number, userData: User): Promise<User | null> {
-    const query = 'UPDATE user SET name = ?, role_id_fk = ?, password = ?, updated_at = ?, updated_by = ?, deleted = ?, subscription_id = ? WHERE user_id = ?';
+    const query = 'UPDATE user SET name = ?, password = ?, weight = ?, height = ?, age = ?, progress = ?, goal = ?, updated_at = NOW() WHERE user_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         userData.name, 
-        userData.role_id_fk || null, 
         userData.password, 
-        userData.updated_at, 
-        userData.updated_by || null, 
-        userData.deleted || false, 
-        userData.subscription_id || null,
+        userData.weight || null, 
+        userData.height || null, 
+        userData.age || null, 
+        userData.progress || null, 
+        userData.goal || null, 
+        user_id
+      ], (error, result: ResultSetHeader) => {
+        if (error) {
+          reject(error);
+        } else {
+          if (result.affectedRows > 0) {
+            const updatedUser: User = { ...userData, user_id: user_id };
+            resolve(updatedUser);
+          } else {
+            resolve(null);
+          }
+        }
+      });
+    });
+  }
+  
+  public static async updatenotpasswordUser(user_id: number, userData: User): Promise<User | null> {
+    const query = 'UPDATE user SET name = ?, weight = ?, height = ?, age = ?, progress = ?, goal = ?, updated_at = NOW() WHERE user_id = ?';
+    return new Promise((resolve, reject) => {
+      connection.execute(query, [
+        userData.name,  
+        userData.weight || null, 
+        userData.height || null, 
+        userData.age || null, 
+        userData.progress || null, 
+        userData.goal || null, 
         user_id
       ], (error, result: ResultSetHeader) => {
         if (error) {

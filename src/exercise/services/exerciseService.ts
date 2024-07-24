@@ -30,9 +30,7 @@ export class ExerciseService {
     return ExerciseRepository.deleteExercise(id);
   }
 
-
   public static async removeUserExercise(userId: number, exerciseId: number): Promise<void> {
     return ExerciseRepository.removeUserExercise(userId, exerciseId);
   }
-
 }
