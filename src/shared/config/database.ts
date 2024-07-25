@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-/*
+
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -14,8 +14,8 @@ const connection = mysql.createConnection({
   authPlugins: {
     mysql_clear_password: () => () => Buffer.from(process.env.DB_PASSWORD + '\0')
   }
-});*/
-
+});
+/*
 const connection = mysql.createConnection({
   host:'localhost',
   user:'root',
@@ -23,7 +23,7 @@ const connection = mysql.createConnection({
   database:'infernogym_mysql_ts',
   connectionLimit:10   
     
-});
+});*/
 
 connection.connect((err) => {
     if (err) {
