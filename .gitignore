@@ -10,7 +10,7 @@ node_modules/
 .history/*
 
 # misc
-
+.env
 
 npm-debug.log*
 yarn-debug.log*

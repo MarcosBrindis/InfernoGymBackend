@@ -34,6 +34,20 @@ export class ExerciseRepository {
     });
   }
 
+  public static async findByName(name: string): Promise<Exercise[]> {
+    const query = 'SELECT * FROM exercise WHERE exercise_name LIKE ?';
+    return new Promise((resolve, reject) => {
+      connection.query(query, [`%${name}%`], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          const exercises: Exercise[] = results as Exercise[];
+          resolve(exercises);
+        }
+      });
+    });
+  }
+
   public static async createExercise(exercise: Exercise): Promise<Exercise> {
     const query = 'INSERT INTO exercise (exercise_name, exercise_description, weightexercise, series, repetitions, day_of_week, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {

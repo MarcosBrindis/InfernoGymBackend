@@ -26,6 +26,20 @@ export const getExerciseById = async (req: Request, res: Response): Promise<void
   }
 };
 
+export const getExercisesByName = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name } = req.query;
+    if (!name) {
+      res.status(400).json({ message: 'Exercise name is required' });
+      return;
+    }
+    const exercises = await ExerciseService.getExercisesByName(name as string);
+    res.json(exercises);
+  } catch (err) {
+    res.status(500).send('Error al obtener los datos');
+  }
+};
+
 export const assignExerciseToClient = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { exerciseId, clientId } = req.body;
@@ -36,11 +50,9 @@ export const assignExerciseToClient = async (req: AuthRequest, res: Response): P
       return;
     }
 
-    // Verificar si el usuario es un coach
-    await authorizeRole(['Coach'])(req, res, async () => {
-      await ExerciseService.addUserExercise(clientId, exerciseId, coachId);
-      res.status(201).send('Exercise assigned to client');
-    });
+    // No se verifica el rol del usuario
+    await ExerciseService.addUserExercise(clientId, exerciseId, coachId);
+    res.status(201).send('Exercise assigned to client');
   } catch (err) {
     res.status(500).send('Error assigning exercise to client');
   }
@@ -55,11 +67,10 @@ export const unassignExerciseFromClient = async (req: AuthRequest, res: Response
       res.status(400).json({ message: 'Coach ID is missing' });
       return;
     }
-    // Verificar si el usuario es un coach
-    await authorizeRole(['Coach'])(req, res, async () => {
-      await ExerciseService.removeUserExercise(clientId, exerciseId);
-      res.status(200).send('Exercise unassigned from client');
-    });
+
+    // No se verifica el rol del usuario
+    await ExerciseService.removeUserExercise(clientId, exerciseId);
+    res.status(200).send('Exercise unassigned from client');
   } catch (err) {
     res.status(500).send('Error unassigning exercise from client');
   }
@@ -86,7 +97,7 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
       updated_by: userId.toString(),
     };
 
-    await authorizeRole(['Administrador', 'Coach'])(req, res, async () => {
+    await authorizeRole(['Administrador', 'Coach','Cliente'])(req, res, async () => {
       const createdExercise = await ExerciseService.createExercise(newExercise as Exercise);
       await ExerciseService.addUserExercise(userId, createdExercise.id!, userId);
       res.status(201).send('Exercise created');

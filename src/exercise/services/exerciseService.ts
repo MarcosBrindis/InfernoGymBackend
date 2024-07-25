@@ -10,6 +10,10 @@ export class ExerciseService {
     return ExerciseRepository.findById(id);
   }
 
+  public static async getExercisesByName(name: string): Promise<Exercise[]> {
+    return ExerciseRepository.findByName(name);
+  }
+
   public static async addUserExercise(userId: number, exerciseId: number, createdBy: number): Promise<void> {
     return ExerciseRepository.addUserExercise(userId, exerciseId, createdBy);
   }
