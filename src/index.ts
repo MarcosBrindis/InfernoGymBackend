@@ -41,16 +41,15 @@ app.use(notFoundHandler);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
-
+/*
 // Iniciar el servidor
-/*app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });//borrar*/
-
 // Configurar HTTPS
 const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.xy/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/tu_dominio/fullchain.pem')
+  key: fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.zxy/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.zxy/fullchain.pem')
 };
 
 https.createServer(options, app).listen(port, () => {
