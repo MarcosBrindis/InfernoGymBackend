@@ -10,7 +10,7 @@ userRoutes.post('/login', loginUser);
 
 userRoutes.get('/', authMiddleware,authorizeRole(['Administrador']), getUsers);
 userRoutes.get('/nutricionists-coaches', authMiddleware, authorizeRole(['Administrador']), getNutricionistsAndCoaches);
-userRoutes.get('/clients', authMiddleware, authorizeRole(['Administrador']), getClients);
+userRoutes.get('/clients', authMiddleware, authorizeRole(['Administrador','Nutricionista', 'Coach']), getClients);
 userRoutes.get('/:user_id', authMiddleware, getUserById);
 userRoutes.get('/name/:name', authMiddleware, getUserByName);
 userRoutes.post('/user-client', authMiddleware, authorizeRole(['Nutricionista', 'Coach','Administrador']), addUserClientRelation);

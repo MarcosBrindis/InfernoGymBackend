@@ -7,6 +7,7 @@ export interface User {
   age?: number;
   progress?: string;
   goal?: string; 
+  gmail?: string;
   subscription_id?: number;  
   created_at?: string;
   created_by?: number;

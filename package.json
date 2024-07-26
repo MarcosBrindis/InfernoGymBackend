@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "start": "node build/index.js",
-    "tsc": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "nodemon": "nodemon src/index.ts"
+    "build": "tsc",
+    "nodemon": "nodemon build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

@@ -116,21 +116,13 @@ export class UserService {
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, saltRounds);
     }
-
     // Llamar a updateUser en UserRepository para actualizar los datos del usuario
     const updatedUser = await UserRepository.updateUser(user_id, userData);
     return updatedUser;
   }
 
   public static async modifyUsernotpass(user_id: number, userData: User): Promise<User | null> {
-    // Si la contraseña está presente, encriptar la nueva contraseña antes de actualizar
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, saltRounds);
-    }
-
-    // Llamar a updateUser en UserRepository para actualizar los datos del usuario
-    const updatedUser = await UserRepository.updatenotpasswordUser(user_id, userData);
-    return updatedUser;
+    return await UserRepository.updatenotpassUser(user_id, userData);
   }
 
   public static async deleteUser(userId: number): Promise<boolean> {

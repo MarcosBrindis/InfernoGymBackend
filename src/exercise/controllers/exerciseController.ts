@@ -58,17 +58,11 @@ export const assignExerciseToClient = async (req: AuthRequest, res: Response): P
   }
 };
 
-export const unassignExerciseFromClient = async (req: AuthRequest, res: Response): Promise<void> => {
+export const unassignExerciseFromClient = async (req: Request, res: Response): Promise<void> => {
   try {
     const { exerciseId, clientId } = req.body;
-    const coachId = req.user?.user_id;
 
-    if (!coachId) {
-      res.status(400).json({ message: 'Coach ID is missing' });
-      return;
-    }
-
-    // No se verifica el rol del usuario
+    // No se verifica el rol del usuario ni la autenticación
     await ExerciseService.removeUserExercise(clientId, exerciseId);
     res.status(200).send('Exercise unassigned from client');
   } catch (err) {
@@ -85,7 +79,6 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
       res.status(400).json({ message: 'User ID is missing' });
       return;
     }
-
     const newExercise: Omit<Exercise, 'created_at' | 'updated_at'> = {
       exercise_name,
       exercise_description,
@@ -96,7 +89,6 @@ export const createExercise = async (req: AuthRequest, res: Response): Promise<v
       created_by: userId.toString(),
       updated_by: userId.toString(),
     };
-
     await authorizeRole(['Administrador', 'Coach','Cliente'])(req, res, async () => {
       const createdExercise = await ExerciseService.createExercise(newExercise as Exercise);
       await ExerciseService.addUserExercise(userId, createdExercise.id!, userId);

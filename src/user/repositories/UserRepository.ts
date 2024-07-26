@@ -5,7 +5,7 @@ import { User } from '../models/User';
 export class UserRepository {
   public static async findAll(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT user_id, role_id_fk, subscription_id, name, goal FROM user', (error: any, results) => {
+      connection.query('SELECT user_id, role_id_fk, subscription_id, name, gmail, goal FROM user', (error: any, results) => {
         if (error) {
           reject(error);
         } else {
@@ -53,7 +53,7 @@ export class UserRepository {
   public static async findByRoles(roleIds: number[]): Promise<User[]> {
     return new Promise((resolve, reject) => {
       const placeholders = roleIds.map(() => '?').join(',');
-      const query = `SELECT user_id, role_id_fk, subscription_id, name, goal FROM user WHERE role_id_fk IN (${placeholders})`;
+      const query = `SELECT user_id, role_id_fk, subscription_id, name, gmail, goal FROM user WHERE role_id_fk IN (${placeholders})`;
       connection.query(query, roleIds, (error: any, results) => {
         if (error) {
           reject(error);
@@ -97,16 +97,17 @@ export class UserRepository {
   }
 
   public static async createUser(user: User): Promise<User> {
-    const query = 'INSERT INTO user (name, password, weight, height, age, progress, goal, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO user (name, gmail, password, weight, height, age, progress, goal, subscription_id, created_at, created_by, updated_at, updated_by, deleted, role_id_fk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         user.name, 
+        user.gmail || null,  
         user.password, 
         user.weight || null, 
         user.height || null, 
         user.age || null, 
         user.progress || null,
-        user.goal || null,  // Campo nuevo agregado
+        user.goal || null, 
         user.subscription_id || null, 
         user.created_at || null, 
         user.created_by || null, 
@@ -127,10 +128,11 @@ export class UserRepository {
   }
 
   public static async updateUser(user_id: number, userData: User): Promise<User | null> {
-    const query = 'UPDATE user SET name = ?, password = ?, weight = ?, height = ?, age = ?, progress = ?, goal = ?, updated_at = NOW() WHERE user_id = ?';
+    const query = 'UPDATE user SET name = ?, gmail = ?, password = ?, weight = ?, height = ?, age = ?, progress = ?, goal = ?, updated_at = NOW() WHERE user_id = ?';
     return new Promise((resolve, reject) => {
       connection.execute(query, [
         userData.name, 
+        userData.gmail || null,
         userData.password, 
         userData.weight || null, 
         userData.height || null, 
@@ -152,25 +154,57 @@ export class UserRepository {
       });
     });
   }
+
   
-  public static async updatenotpasswordUser(user_id: number, userData: User): Promise<User | null> {
-    const query = 'UPDATE user SET name = ?, weight = ?, height = ?, age = ?, progress = ?, goal = ?, updated_at = NOW() WHERE user_id = ?';
+  
+  public static async updatenotpassUser(user_id: number, userData: Partial<User>): Promise<User | null> {
+    const currentUser = await this.findById(user_id);
+    if (!currentUser) {
+      return null;
+    }
+  
+    // Merging new data with current data
+    const updatedData = {
+      ...currentUser,
+      ...userData,
+      updated_at: new Date().toISOString(), // Convert to string
+    };
+  
+    const query = `
+      UPDATE user 
+      SET 
+        name = ?, 
+        gmail = ?, 
+        weight = ?, 
+        height = ?, 
+        age = ?, 
+        progress = ?, 
+        goal = ?, 
+        role_id_fk = ?, 
+        subscription_id = ?, 
+        updated_at = NOW() 
+      WHERE user_id = ?
+    `;
     return new Promise((resolve, reject) => {
       connection.execute(query, [
-        userData.name,  
-        userData.weight || null, 
-        userData.height || null, 
-        userData.age || null, 
-        userData.progress || null, 
-        userData.goal || null, 
+        updatedData.name, 
+        updatedData.gmail || null,  
+        updatedData.weight || null, 
+        updatedData.height || null, 
+        updatedData.age || null, 
+        updatedData.progress || null, 
+        updatedData.goal || null, 
+        updatedData.role_id_fk || null,
+        updatedData.subscription_id || null,
         user_id
       ], (error, result: ResultSetHeader) => {
         if (error) {
+          console.error('Error updating user:', error);
           reject(error);
         } else {
+          console.log('Update result:', result);
           if (result.affectedRows > 0) {
-            const updatedUser: User = { ...userData, user_id: user_id };
-            resolve(updatedUser);
+            resolve(updatedData as User);
           } else {
             resolve(null);
           }
@@ -178,6 +212,8 @@ export class UserRepository {
       });
     });
   }
+  
+  
 
   public static async deleteUser(user_id: number): Promise<boolean> {
     const query = 'DELETE FROM user WHERE user_id = ?';
@@ -186,11 +222,7 @@ export class UserRepository {
         if (error) {
           reject(error);
         } else {
-          if (result.affectedRows > 0) {
-            resolve(true); // Eliminación exitosa
-          } else {
-            resolve(false); // Si no se encontró el usuario a eliminar
-          }
+          resolve(result.affectedRows > 0);
         }
       });
     });

@@ -153,6 +153,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 }
 
+
 export const updateUsernotpass = async (req: Request, res: Response) => {
   try {
     const updatedUser = await UserService.modifyUsernotpass(parseInt(req.params.user_id, 10), req.body);

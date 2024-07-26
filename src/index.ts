@@ -45,14 +45,28 @@ app.use(errorHandler);
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
-});//borrar*/
+});//borrar
+*/
 // Configurar HTTPS
-const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.zxy/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.zxy/fullchain.pem')
+
+
+
+let key: Buffer;
+let cert: Buffer;
+
+try {
+  key = fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.xyz/privkey.pem');
+  cert = fs.readFileSync('/etc/letsencrypt/live/infernogymapi.integrador.xyz/fullchain.pem');
+} catch (error) {
+  console.error('Error al leer los archivos de certificados:', error);
+  process.exit(1);
+}
+
+const options: https.ServerOptions = {
+  key,
+  cert
 };
 
 https.createServer(options, app).listen(port, () => {
   console.log(`Servidor HTTPS corriendo en https://localhost:${port}`);
 });
-
