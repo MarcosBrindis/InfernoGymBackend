@@ -15,15 +15,6 @@ const connection = mysql.createConnection({
     mysql_clear_password: () => () => Buffer.from(process.env.DB_PASSWORD + '\0')
   }
 });
-/*
-const connection = mysql.createConnection({
-  host:'localhost',
-  user:'root',
-  password:'Abed123*',
-  database:'infernogym_mysql_ts',
-  connectionLimit:10   
-    
-});*/
 
 connection.connect((err) => {
     if (err) {

@@ -23,8 +23,9 @@ dotenv.config();
 // Crear la aplicación de Express
 const app: Application = express();
 const port: number = parseInt(process.env.PORT as string, 10) || 3000;
+const whilelist=['infernogym.integrador.xyz']
 app.use(morgan('dev'))
-app.use(cors())
+app.use(cors({origin:whilelist}))
 
 // Middleware de análisis del cuerpo
 app.use(bodyParser.json());
@@ -41,12 +42,7 @@ app.use(notFoundHandler);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
-/*
-// Iniciar el servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
-});//borrar
-*/
+
 // Configurar HTTPS
 
 let key: Buffer;
