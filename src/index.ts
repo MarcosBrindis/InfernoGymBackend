@@ -49,8 +49,6 @@ app.listen(port, () => {
 */
 // Configurar HTTPS
 
-
-
 let key: Buffer;
 let cert: Buffer;
 

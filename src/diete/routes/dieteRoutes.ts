@@ -8,7 +8,7 @@ const dieteRoutes: Router = Router();
 
 dieteRoutes.get('/', authMiddleware,authorizeRole(['Administrador', 'Nutricionista']), getDietes);
 dieteRoutes.get('/:id', authMiddleware,authorizeRole(['Administrador', 'Nutricionista']), getDieteById);
-dieteRoutes.get('/user/:userId', authMiddleware, authorizeRole(['Administrador', 'Nutricionista']), getDieteByUserId); 
+dieteRoutes.get('/user/:userId', authMiddleware, authorizeRole(['Administrador', 'Nutricionista','Cliente']), getDieteByUserId); 
 dieteRoutes.post('/', authMiddleware, authorizeRole(['Administrador', 'Nutricionista']),authorizeSubscription(['Premium']) ,createDiete);
 dieteRoutes.put('/:id', authMiddleware, authorizeRole(['Administrador', 'Nutricionista']),authorizeSubscription(['Premium']), updateDiete);
 dieteRoutes.delete('/:id', authMiddleware, authorizeRole(['Administrador', 'Nutricionista']),authorizeSubscription(['Premium']) , deleteDiete);

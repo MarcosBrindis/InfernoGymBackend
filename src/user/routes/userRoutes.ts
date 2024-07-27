@@ -8,7 +8,7 @@ const userRoutes: Router = Router();
 
 userRoutes.post('/login', loginUser);
 
-userRoutes.get('/', authMiddleware,authorizeRole(['Administrador']), getUsers);
+userRoutes.get('/', authMiddleware, getUsers);
 userRoutes.get('/nutricionists-coaches', authMiddleware, authorizeRole(['Administrador']), getNutricionistsAndCoaches);
 userRoutes.get('/clients', authMiddleware, authorizeRole(['Administrador','Nutricionista', 'Coach']), getClients);
 userRoutes.get('/:user_id', authMiddleware, getUserById);
