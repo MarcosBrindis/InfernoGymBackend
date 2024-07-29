@@ -40,8 +40,6 @@ export const getDieteByUserId = async (req: Request, res: Response): Promise<voi
   }
 };
 
-
-
 export const createDiete = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const newDiete: Diete = req.body;
@@ -65,7 +63,6 @@ export const createDiete = async (req: AuthRequest, res: Response): Promise<void
     res.status(500).send('Error al crear la dieta');
   }
 };
-
 
 export const updateDiete = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
